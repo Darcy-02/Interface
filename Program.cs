@@ -4,21 +4,79 @@ public interface IShape
     double CalculateArea();
     double CalculatePerimeter();
 }
+public interface ICreateShape
+{
+    string MenuName { get; }
+    IShape CreateShape();
+}
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Choose a shape:");
+        Console.WriteLine("1. Trapezium");
+        Console.WriteLine("2. Circle");
+        Console.WriteLine("3. Nonagon");
+
+        int choice = (int)Input("choose (1-3): ");
+
+        IShape shape;
+        ICreateShape shapeCreator;
+
+        switch (choice)
+        {
+            case 1:
+                shapeCreator = new CreateTrapezium();
+                shape = shapeCreator.CreateShape();
+                break;
+            case 2:
+                shapeCreator = new CreateCircle();
+                shape = shapeCreator.CreateShape();
+                break;
+            case 3:
+                shapeCreator = new CreateNonagon();
+                shape = shapeCreator.CreateShape();
+                break;
+            default:
+                Console.WriteLine("Doesn't work, re-run the program");
+                return;        
+            }
+
+        Console.WriteLine($"Area: {shape.CalculateArea()}");
+        Console.WriteLine($"Perimeter: {shape.CalculatePerimeter()}");
+    }
+    public static double Input(string message)
+    {
+        double value;
+
+        while (true)
+        {
+            Console.Write(message);
+            if (double.TryParse(Console.ReadLine(), out value) && value > 0)
+            {
+                return value;
+            }
+            else
+            {
+                Console.WriteLine("Enter a number greater than 0");
+            }
+        }
+    }
+}
 
 public class Trapezium : IShape
 {
 
     //has 4 sides, 2 parallel sides, 2 non-parallel sides and height
-
-    double a,b,c,d,h;
-
+    readonly double a,b,c,d,h;
     public Trapezium(double a, double b, double c, double d, double h)
     {
-        this.a = a; //a is parallel to b
+        this.a = a;
         this.b = b;
-        this.c = c; //c is non-parallel to d
+        this.c = c;
         this.d = d;
-        this.h = h; //height
+        this.h = h;
     }
     public void CalculateUnknownSides()
     {
@@ -36,12 +94,28 @@ public class Trapezium : IShape
         return a + b + c + d;
     }
 }
+
+public class CreateTrapezium : ICreateShape
+{
+    public string MenuName => "Trapezium";
+
+    public IShape CreateShape()
+    {
+        double a = Program.Input("Enter the length of side a (parallel): ");
+        double b = Program.Input("Enter the length of side b (parallel): ");
+        double c = Program.Input("Enter the length of side c (non-parallel): ");
+        double d = Program.Input("Enter the length of side d (non-parallel): ");
+        double h = Program.Input("Enter the height: ");
+        return new Trapezium(a, b, c, d, h);
+    }
+}
 public class Circle : IShape
 {
     double diameter;
     public Circle(double diameter){
         this.diameter = diameter;
     }
+
     public double CalculateArea()
     {
     //pi * r^2
@@ -57,6 +131,17 @@ public class Circle : IShape
         return Math.PI *2 * CalculateRadius();
     }
 }
+
+public class CreateCircle : ICreateShape
+{
+    public string MenuName => "Circle";
+
+    public IShape CreateShape()
+    {
+        double diameter = Program.Input("Enter the diameter of the circle: ");
+        return new Circle(diameter);
+    }
+}
 public class Nonagon : IShape
 {
     int numberOfSides;
@@ -69,6 +154,7 @@ public class Nonagon : IShape
         this.apothem = apothem;
         numberOfSides = 9;
     }
+
     public double CalculateArea()
     {
         //perimeter * apothem / 2 or numberOfSides * sideLength * apothem / 2
@@ -83,63 +169,14 @@ public class Nonagon : IShape
     return numberOfSides;
     }
 }
-
-class Program
-{
-    static double Input(string message)
+public class CreateNonagon : ICreateShape
     {
-        double value;
+        public string MenuName => "Nonagon";
 
-        while (true)
+        public IShape CreateShape()
         {
-            Console.Write(message);
-            if (double.TryParse(Console.ReadLine(), out value) && value > 0)
-            {
-                return value;
-            }
-            else
-            {
-                Console.WriteLine("Enter a number greater than 0");
-            }
+            double sideLength = Program.Input("Enter the length of one side: ");
+            double apothem = Program.Input("Enter the apothem: ");
+            return new Nonagon(sideLength, apothem);
         }
     }
-
-        static void Main()
-        {
-            Console.WriteLine("Choose a shape:");
-            Console.WriteLine("1. Trapezium");
-            Console.WriteLine("2. Circle");
-            Console.WriteLine("3. Nonagon");
-
-            int choice = (int)Input("choose (1-3): ");
-
-            IShape shape;
-
-            switch (choice)
-            {
-                case 1:
-                    double a = Input("Enter the length of side a (parallel): ");
-                    double b = Input("Enter the length of side b (parallel): ");
-                    double c = Input("Enter the length of side c (non-parallel): ");
-                    double d = Input("Enter the length of side d (non-parallel): ");
-                    double h = Input("Enter the height: ");
-                    shape = new Trapezium(a, b, c, d, h);
-                    break;
-                case 2:
-                    double diameter = Input("Enter the diameter of the circle: ");
-                    shape = new Circle(diameter);
-                    break;
-                case 3:
-                    double sideLength = Input("Enter the length of one side: ");
-                    double apothem = Input("Enter the apothem: ");
-                    shape = new Nonagon(sideLength, apothem);
-                    break;
-                default:
-                    Console.WriteLine("Doesn't work, re-run the program");
-                    return;
-            }
-
-            Console.WriteLine($"Area: {shape.CalculateArea()}");
-            Console.WriteLine($"Perimeter: {shape.CalculatePerimeter()}");
-        }
-}
